@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f5f4" />
+    <meta name="description" content="ApiTick is a small, self-hosted monitor for websites and API endpoints. Keep checks, incidents and history on your own machine." />
+    <link rel="canonical" href="https://chedi-dabbebi.github.io/ApiTick/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ApiTick — uptime you can keep" />
+    <meta property="og:description" content="A small local monitor for websites and APIs. Your checks and history stay on your machine." />
+    <meta property="og:image" content="https://chedi-dabbebi.github.io/ApiTick/assets/og.png" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="site.css" />
+    <title>ApiTick — uptime you can keep</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="ApiTick home">
+        <svg class="mark" viewBox="0 0 26 26" aria-hidden="true">
+          <path d="M3 14h5l3-8 5 15 3-7h4" />
+        </svg>
+        <span>ApiTick</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#history">History</a>
+        <a class="nav-github" href="https://github.com/Chedi-Dabbebi/ApiTick">Source code</a>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="intro" id="top" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <h1 id="page-title">Know when your API stops answering.</h1>
+          <p class="lede">ApiTick checks your endpoints on a schedule and keeps every result on your machine. No account, hosted service, or card needed.</p>
+          <div class="intro-actions">
+            <a class="button button-dark" href="https://github.com/Chedi-Dabbebi/ApiTick#quick-start">Run it locally</a>
+            <a class="text-link" href="#how-it-works">See how it works</a>
+          </div>
+          <p class="stack-note">React + FastAPI + SQLite</p>
+        </div>
+        <div class="intro-facts" aria-label="Project facts">
+          <div><strong>10 sec</strong><span>fastest check interval</span></div>
+          <div><strong>7 days</strong><span>of check history</span></div>
+          <div><strong>One file</strong><span>for local data</span></div>
+        </div>
+      </section>
+
+      <section class="ledger-section" aria-labelledby="ledger-title">
+        <div class="ledger-heading">
+          <div>
+            <h2 id="ledger-title">A week, check by check.</h2>
+          </div>
+          <p class="ledger-note">Example week. Each mark is a ten-minute slice; the red gap is a brief sample outage that closes on the next successful check.</p>
+        </div>
+        <div class="ledger" id="ledger" role="img" aria-label="Seven days of mostly successful checks, with a brief outage on Tuesday evening"></div>
+        <div class="ledger-axis" aria-hidden="true">
+          <span>Wed 06</span><span>Thu 07</span><span>Fri 08</span><span>Sat 09</span><span>Sun 10</span><span>Mon 11</span><span>Tue 12</span>
+        </div>
+        <div class="ledger-key"><span><i class="key-up"></i> responding</span><span><i class="key-down"></i> outage sample</span><span>10 min per mark</span></div>
+      </section>
+
+      <section class="explanation" id="how-it-works" aria-labelledby="how-title">
+        <div class="section-copy">
+          <h2 id="how-title">A clear record when something goes wrong.</h2>
+          <p>Add a public HTTP or HTTPS endpoint. A separate worker checks it, stores the response time, and opens an incident on the first failure. The next successful check resolves it.</p>
+          <ul class="feature-list">
+            <li><strong>Catch more than downtime.</strong> Require a phrase in the response body, too.</li>
+            <li><strong>See the whole week.</strong> Review availability, latency, recent checks and incident history.</li>
+            <li><strong>Keep the data close.</strong> SQLite stores the history on your own machine.</li>
+          </ul>
+        </div>
+        <figure class="screen screen-dashboard">
+          <img src="assets/dashboard.png" alt="ApiTick dashboard showing monitor status, availability and recent incidents" width="1440" height="900" loading="lazy" />
+          <figcaption>One view for every endpoint you monitor.</figcaption>
+        </figure>
+      </section>
+
+      <section class="history" id="history" aria-labelledby="history-title">
+        <div class="history-heading">
+          <h2 id="history-title">Find the moment service dipped.</h2>
+          <p>Availability and response times share the same timeline as checks and incidents, so you can see what changed and when.</p>
+        </div>
+        <figure class="screen screen-detail">
+          <img src="assets/detail.png" alt="ApiTick monitor detail with availability, latency chart, checks and incident history" width="1440" height="1000" loading="lazy" />
+          <figcaption>Latency history keeps failed checks visible across the full window.</figcaption>
+        </figure>
+      </section>
+
+      <section class="privacy" id="privacy" aria-labelledby="privacy-title">
+        <div class="privacy-mark" aria-hidden="true">↳</div>
+        <div>
+          <h2 id="privacy-title">Your checks stay on your machine.</h2>
+          <p>ApiTick runs locally. The worker sends requests to the endpoints you add; the monitor list and check history stay in your SQLite database.</p>
+        </div>
+        <a class="button button-light" href="https://github.com/Chedi-Dabbebi/ApiTick">Read the source</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="wordmark" href="#top"><span>ApiTick</span></a>
+      <p>Small checks. A useful history. Your own machine.</p>
+      <a href="https://github.com/Chedi-Dabbebi/ApiTick">GitHub</a>
+    </footer>
+
+    <script>
+      const ledger = document.querySelector('#ledger')
+      const labels = ['Wed 06', 'Thu 07', 'Fri 08', 'Sat 09', 'Sun 10', 'Mon 11', 'Tue 12']
+      labels.forEach((_, day) => {
+        const row = document.createElement('div')
+        row.className = 'ledger-day'
+        row.setAttribute('aria-hidden', 'true')
+        for (let mark = 0; mark < 144; mark += 1) {
+          const tick = document.createElement('i')
+          const sampleOutage = day === 6 && mark >= 126 && mark <= 127
+          tick.className = sampleOutage ? 'tick tick-down' : 'tick'
+          row.append(tick)
+        }
+        ledger.append(row)
+      })
+    </script>
+  </body>
+</html>

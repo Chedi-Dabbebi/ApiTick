@@ -13,7 +13,9 @@ export default function App() {
       <div className="app">
         <header className="topbar">
           <Link className="brand" to="/">
-            <span className="brand-mark" aria-hidden="true" />
+            <svg className="brand-mark" viewBox="0 0 26 26" aria-hidden="true">
+              <path d="M3 14h5l3-8 5 15 3-7h4" />
+            </svg>
             ApiTick
           </Link>
           <span className="topbar-note">local instance</span>

@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { api } from '../api/client'
-import type { DashboardSummary, MonitorInput, MonitorSummary, RecentIncident } from '../api/types'
+import type {
+  DashboardSummary,
+  MonitorInput,
+  MonitorStatus,
+  MonitorSummary,
+  RecentIncident,
+} from '../api/types'
 import { MonitorForm } from '../components/MonitorForm'
 import { MonitorTable } from '../components/MonitorTable'
 import { RecentIncidents } from '../components/RecentIncidents'
@@ -11,6 +17,16 @@ type FormState =
   | { mode: 'closed' }
   | { mode: 'create' }
   | { mode: 'edit'; monitor: MonitorSummary }
+
+const STATUS_FILTERS = [
+  { status: 'all', label: 'All' },
+  { status: 'up', label: 'Up' },
+  { status: 'down', label: 'Down' },
+  { status: 'paused', label: 'Paused' },
+  { status: 'unknown', label: 'Unknown' },
+] as const
+
+type StatusFilter = (typeof STATUS_FILTERS)[number]['status']
 
 interface DashboardData {
   summary: DashboardSummary
@@ -31,6 +47,8 @@ export function Dashboard() {
   const [form, setForm] = useState<FormState>({ mode: 'closed' })
   const [busyId, setBusyId] = useState<number | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [query, setQuery] = useState('')
 
   async function runAction(action: () => Promise<unknown>) {
     setActionError(null)
@@ -73,6 +91,24 @@ export function Dashboard() {
   }
 
   const monitors = data?.summary.monitors ?? []
+  const counts: Record<MonitorStatus | 'all', number> = {
+    all: monitors.length,
+    up: 0,
+    down: 0,
+    paused: 0,
+    unknown: 0,
+  }
+  for (const monitor of monitors) counts[monitor.current_status] += 1
+
+  const normalizedQuery = query.trim().toLowerCase()
+  const visibleMonitors = monitors.filter((monitor) => {
+    const matchesStatus = statusFilter === 'all' || monitor.current_status === statusFilter
+    const matchesQuery =
+      !normalizedQuery ||
+      monitor.name.toLowerCase().includes(normalizedQuery) ||
+      monitor.url.toLowerCase().includes(normalizedQuery)
+    return matchesStatus && matchesQuery
+  })
 
   return (
     <>
@@ -113,14 +149,76 @@ export function Dashboard() {
         </div>
       ) : (
         <>
-          <MonitorTable
-            monitors={monitors}
-            busyId={busyId}
-            onPause={handlePause}
-            onResume={handleResume}
-            onEdit={(monitor) => setForm({ mode: 'edit', monitor })}
-            onDelete={handleDelete}
-          />
+          <div className="monitor-toolbar">
+            <div className="monitor-filters" role="group" aria-label="Filter by status">
+              {STATUS_FILTERS.map((filter) => {
+                const count = counts[filter.status]
+                return (
+                  <button
+                    key={filter.status}
+                    type="button"
+                    className="monitor-filter"
+                    data-status={filter.status}
+                    aria-pressed={statusFilter === filter.status}
+                    disabled={filter.status !== 'all' && count === 0}
+                    onClick={() => setStatusFilter(filter.status)}
+                  >
+                    {filter.label} <span>{count}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <label className="monitor-search">
+              <span className="sr-only">Search monitors by name or URL</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="8.5" cy="8.5" r="5.5" />
+                <path d="m12.5 12.5 4 4" />
+              </svg>
+              <input
+                type="search"
+                value={query}
+                placeholder="Name or URL"
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              {query ? (
+                <button
+                  type="button"
+                  className="search-clear"
+                  aria-label="Clear search"
+                  onClick={() => setQuery('')}
+                >
+                  ×
+                </button>
+              ) : null}
+            </label>
+          </div>
+          <span className="sr-only" aria-live="polite">
+            Showing {visibleMonitors.length} of {monitors.length} monitors
+          </span>
+          {visibleMonitors.length > 0 ? (
+            <MonitorTable
+              monitors={visibleMonitors}
+              busyId={busyId}
+              onPause={handlePause}
+              onResume={handleResume}
+              onEdit={(monitor) => setForm({ mode: 'edit', monitor })}
+              onDelete={handleDelete}
+            />
+          ) : (
+            <div className="panel filter-empty">
+              <p>No monitors match these filters.</p>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setQuery('')
+                }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
           {data ? <RecentIncidents incidents={data.incidents} now={data.now} /> : null}
         </>
       )}
